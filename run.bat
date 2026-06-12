@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 
 :: Verify/install packages
 echo Checking and installing required packages...
-python -m pip install fastapi uvicorn pypdf requests python-multipart numpy
+python -m pip install -r requirements.txt
 
 if %errorlevel% neq 0 (
     echo [WARNING] Failed to verify/install python packages. The server will try to run anyway.

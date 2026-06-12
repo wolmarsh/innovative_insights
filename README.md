@@ -10,7 +10,7 @@ A robust, user-friendly, and secure PDF Q&A Tool designed for efficient informat
 - **Page-Aware Citations**: Answers are grounded directly in the text and include precise file and page citations.
 - **Interactive Accordion**: Inspect exact matching text passages and similarity scores.
 - **Session Isolation**: Each browser session gets its own isolated, in-memory index context.
-- **Customizable LLM Configuration**: Easily set your OpenRouter API key and select your preferred Chat and Embedding models from the frontend settings.
+- **Customizable LLM Configuration**: Easily set your OpenRouter API key and select your preferred chat model from the frontend settings; embeddings are generated locally with sentence-transformers.
 - **Premium Aesthetics**: Sleek dark-mode theme with glassmorphic cards, transition animations, and skeleton loaders.
 - **High Security**: Fully zero-trust client side with programmatic DOM manipulation to prevent Cross-Site Scripting (DOMXSS).
 
@@ -19,7 +19,7 @@ A robust, user-friendly, and secure PDF Q&A Tool designed for efficient informat
 ## Tech Stack
 
 - **Frontend**: HTML5, Vanilla CSS (Custom styling), Vanilla JS (No build step required).
-- **Backend**: Python 3.12, FastAPI (Web Server), PyPDF (PDF Parsing), NumPy (Cosine Similarity Vector Search), Requests (API Communication).
+- **Backend**: Python 3.12, FastAPI (Web Server), PyPDF (PDF Parsing), sentence-transformers (local embeddings), NumPy (cosine similarity search), Requests (API Communication).
 - **LLM Engine**: OpenRouter API.
 
 ---
@@ -49,7 +49,7 @@ This script will:
 
 3. Install the required dependencies:
    ```bash
-   pip install fastapi uvicorn pypdf requests python-multipart numpy
+   pip install -r requirements.txt
    ```
 
 4. Start the FastAPI server:
@@ -67,7 +67,7 @@ This script will:
 1. **Configure API Key**:
    - Click the **Settings** button in the upper-right corner.
    - Enter your **OpenRouter API Key**.
-   - Select your preferred Chat and Embedding models (defaults are recommended).
+   - Select your preferred chat model (defaults are recommended). The embedding model runs locally and does not require an API key.
    - Click **Save Settings**.
    
 2. **Upload PDF Files**:
