@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovate Insights - PDF Q&A Navigator</title>
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-glow"></div>
+                <i class="fa-solid fa-file-pdf logo-icon"></i>
+                <div class="logo-text">
+                    <h1>Innovate Insights</h1>
+                    <span>PDF Q&A Navigator</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="clear-session-btn" class="btn btn-secondary" title="Clear all uploaded documents and reset session">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Reset Session</span>
+                </button>
+                <button id="settings-toggle-btn" class="btn btn-primary btn-glow" title="Configure API Key and Model settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main class="app-main">
+            <!-- Sidebar / Left Panel: Document Manager -->
+            <section class="panel-left">
+                <div class="panel-card glass">
+                    <div class="panel-card-header">
+                        <i class="fa-solid fa-cloud-arrow-up card-icon"></i>
+                        <h2>Upload Documents</h2>
+                    </div>
+                    
+                    <div class="upload-dropzone" id="upload-zone">
+                        <input type="file" id="file-input" multiple accept=".pdf" style="display: none;">
+                        <i class="fa-solid fa-file-circle-plus dropzone-icon"></i>
+                        <p class="dropzone-text">Drag & drop PDF files here or <span class="browse-link">browse</span></p>
+                        <p class="dropzone-subtext">You can upload multiple files at once</p>
+                    </div>
+
+                    <div id="file-list-container" class="file-list-wrapper hide">
+                        <h3>Uploaded Files</h3>
+                        <ul id="file-list" class="file-list"></ul>
+                    </div>
+                </div>
+
+                <div class="panel-card glass session-status-card">
+                    <div class="panel-card-header">
+                        <i class="fa-solid fa-circle-nodes card-icon"></i>
+                        <h2>Session Index Status</h2>
+                    </div>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-label">Documents Indexed</span>
+                            <span id="stat-docs-count" class="status-value">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Total Text Chunks</span>
+                            <span id="stat-chunks-count" class="status-value">0</span>
+                        </div>
+                    </div>
+                    <div class="status-connection-badge">
+                        <div class="badge-dot" id="api-status-dot"></div>
+                        <span id="api-status-text">API Key Not Configured</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Chat Q&A -->
+            <section class="panel-right">
+                <div class="chat-container glass">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="chat-title-info">
+                            <i class="fa-solid fa-comments chat-header-icon"></i>
+                            <div>
+                                <h3>Document Query Engine</h3>
+                                <span id="active-model-display">Model: google/gemini-2.5-flash</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Area -->
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Default empty state -->
+                        <div class="chat-empty-state" id="chat-empty-state">
+                            <div class="empty-icon-wrapper">
+                                <i class="fa-solid fa-wand-magic-sparkles empty-icon"></i>
+                            </div>
+                            <h2>Ask Anything About Your Documents</h2>
+                            <p>Upload your PDFs first, then type your questions. The AI will extract and synthesize the answers using citations from your files.</p>
+                            
+                            <div class="suggested-queries">
+                                <div class="suggested-query-card">
+                                    <i class="fa-regular fa-lightbulb"></i>
+                                    <span>"Summarize the key findings in the document"</span>
+                                </div>
+                                <div class="suggested-query-card">
+                                    <i class="fa-regular fa-lightbulb"></i>
+                                    <span>"What are the main recommendations or next steps?"</span>
+                                </div>
+                                <div class="suggested-query-card">
+                                    <i class="fa-regular fa-lightbulb"></i>
+                                    <span>"Are there any statistical figures or growth metrics mentioned?"</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Area -->
+                    <div class="chat-input-area">
+                        <div class="chat-input-wrapper">
+                            <textarea id="question-input" placeholder="Ask a question about the processed PDFs... (Press Enter to send)" rows="1" disabled></textarea>
+                            <button id="send-btn" class="send-btn" title="Send Question" disabled>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <p class="chat-input-hint">Press Enter to send, Shift + Enter for new line. Answers are grounded in document context.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal-overlay hide">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-gear"></i>
+                        <h2>Configuration Settings</h2>
+                    </div>
+                    <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="settings-form">
+                        <!-- OpenRouter API Key -->
+                        <div class="form-group">
+                            <label for="settings-api-key">
+                                <span>OpenRouter API Key</span>
+                                <a href="https://openrouter.ai/keys" target="_blank" class="form-link">Get Key <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                            </label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="settings-api-key" placeholder="sk-or-v1-..." required>
+                                <button type="button" id="toggle-key-visibility" class="toggle-password-btn">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <p class="form-help">Your key is stored locally in your browser (localStorage) and never saved on our server.</p>
+                        </div>
+
+                        <!-- Chat Model -->
+                        <div class="form-group">
+                            <label for="settings-chat-model">Chat Model (LLM)</label>
+                            <select id="settings-chat-model">
+                                <option value="google/gemini-2.5-flash" selected>google/gemini-2.5-flash (Recommended, Fast &amp; Free)</option>
+                                <option value="google/gemini-2.5-pro">google/gemini-2.5-pro (High intelligence)</option>
+                                <option value="nvidia/nemotron-3-ultra-550b-a55b:free">nvidia/nemotron-3-ultra-550b-a55b:free (NVIDIA Ultra, Free)</option>
+                                <option value="nex-agi/nex-n2-pro:free">nex-agi/nex-n2-pro:free (Nex N2 Pro, Free)</option>
+                                <option value="meta-llama/llama-4-maverick:free">meta-llama/llama-4-maverick:free (Fast &amp; Free)</option>
+                                <option value="deepseek/deepseek-chat">deepseek/deepseek-chat (Excellent reasoning)</option>
+                                <option value="anthropic/claude-3.5-sonnet">anthropic/claude-3.5-sonnet (High capability)</option>
+                            </select>
+                        </div>
+
+                        <!-- Embedding Info -->
+                        <div class="form-group">
+                            <label>Embedding Model</label>
+                            <div class="embedding-info-badge">
+                                <i class="fa-solid fa-microchip"></i>
+                                <div>
+                                    <strong>all-MiniLM-L6-v2</strong> &mdash; Running locally on your machine
+                                    <p class="form-help" style="margin-top: 4px;">Embeddings are generated locally for free. No API key or network call is required for document uploads.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary btn-glow">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
